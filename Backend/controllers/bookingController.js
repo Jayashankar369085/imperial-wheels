@@ -1,37 +1,54 @@
 const Booking = require("../models/booking");
 const nodemailer = require("nodemailer");
 
+/* ================= EMAIL TRANSPORTER ================= */
+
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
   }
 });
+
+/* ================= CREATE BOOKING ================= */
+
 exports.createBooking = async (req, res) => {
+
   try {
 
     const booking = new Booking(req.body);
+
     const savedBooking = await booking.save();
 
     res.json(savedBooking);
 
   } catch (error) {
 
+    console.error("BOOKING ERROR:", error);
+
     res.status(500).json({ message: error.message });
 
   }
+
 };
+
+/* ================= UPDATE BOOKING STATUS ================= */
 
 exports.updateBookingStatus = async (req, res) => {
 
-  console.log("Status update request received");
-
   try {
+
+    console.log("Status update request received");
+
     const booking = await Booking.findById(req.params.id);
 
     if (!booking) {
-      return res.status(404).json({ message: "Booking not found" });
+      return res.status(404).json({
+        message: "Booking not found"
+      });
     }
 
     booking.status = req.body.status;
@@ -39,81 +56,111 @@ exports.updateBookingStatus = async (req, res) => {
     await booking.save();
 
     let subject = "";
-    let message = "";
+    let htmlMessage = "";
+
+    /* ===== APPROVED EMAIL ===== */
 
     if (booking.status === "approved") {
 
       subject = "Imperial Wheels Booking Approved";
 
-      message = `
-Hello ${booking.name},
+      htmlMessage = `
+        <h2>Imperial Wheels</h2>
 
-Your booking request has been APPROVED.
+        <p>Hello <b>${booking.name}</b>,</p>
 
-Vehicle: ${booking.vehicleName}
-Start Date: ${booking.startDate.toISOString().substring(0,10)}
-End Date: ${booking.endDate.toISOString().substring(0,10)}
+        <p>Your booking request has been <b style="color:green">APPROVED</b>.</p>
 
-Our team will contact you shortly regarding payment.
+        <p><b>Vehicle:</b> ${booking.vehicleName}</p>
+        <p><b>Start Date:</b> ${booking.startDate.toISOString().substring(0,10)}</p>
+        <p><b>End Date:</b> ${booking.endDate.toISOString().substring(0,10)}</p>
 
-Thank you for choosing Imperial Wheels.
+        <p>Our team will contact you shortly regarding payment.</p>
 
-Regards,
-Imperial Wheels
-`;
+        <br/>
+
+        <p>Thank you for choosing <b>Imperial Wheels</b>.</p>
+      `;
 
     }
+
+    /* ===== REJECTED EMAIL ===== */
 
     if (booking.status === "rejected") {
 
       subject = "Imperial Wheels Booking Update";
 
-      message = `
-Hello ${booking.name},
+      htmlMessage = `
+        <h2>Imperial Wheels</h2>
 
-Unfortunately your booking request for ${booking.vehicleName}
-could not be approved due to availability.
+        <p>Hello <b>${booking.name}</b>,</p>
 
-Please try booking another vehicle.
+        <p>Unfortunately your booking request for 
+        <b>${booking.vehicleName}</b> could not be approved due to availability.</p>
 
-Regards,
-Imperial Wheels
-`;
+        <p>Please try booking another vehicle.</p>
+
+        <br/>
+
+        <p>Regards,<br/>Imperial Wheels</p>
+      `;
 
     }
 
-    await transporter.sendMail({
+    /* ================= SEND EMAIL ================= */
 
-      from: process.env.EMAIL_USER,
-      to: booking.email,
-      subject: subject,
-      text: message
+    try {
 
-    });
-console.log("Sending email to:", booking.email);
+      await transporter.sendMail({
+
+        from: `"Imperial Wheels" <${process.env.EMAIL_USER}>`,
+        to: booking.email,
+        subject: subject,
+        html: htmlMessage
+
+      });
+
+      console.log("Email sent to:", booking.email);
+
+    } catch (mailError) {
+
+      console.error("EMAIL ERROR:", mailError);
+
+    }
+
     res.json(booking);
 
   } catch (error) {
 
-  console.error("EMAIL ERROR:", error);
+    console.error("STATUS UPDATE ERROR:", error);
 
-  res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message
+    });
 
-}
+  }
 
 };
+
+/* ================= GET BOOKINGS ================= */
 
 exports.getBookings = async (req, res) => {
 
   try {
 
-    const bookings = await Booking.find().sort({ createdAt: -1 });
+    const bookings = await Booking
+      .find()
+      .sort({ createdAt: -1 });
 
     res.json(bookings);
 
   } catch (error) {
 
-    res.status(500).json({ message: error.message });
+    console.error("FETCH BOOKINGS ERROR:", error);
+
+    res.status(500).json({
+      message: error.message
+    });
 
   }
 
