@@ -9,7 +9,7 @@ function VehicleList({ search }) {
 
   useEffect(() => {
 
-    axios.get("http://localhost:5000/api/vehicles")
+    axios.get("https://imperial-wheels.onrender.com/api/vehicles")
       .then(res => setVehicles(res.data))
       .catch(err => console.error(err));
 

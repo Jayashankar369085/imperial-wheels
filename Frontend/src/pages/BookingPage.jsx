@@ -37,8 +37,7 @@ function BookingPage() {
 
   useEffect(()=>{
 
-    axios
-      .get(`http://localhost:5000/api/vehicles/${id}`)
+    axios.get(`https://imperial-wheels.onrender.com/api/vehicles/${id}`)
       .then(res => setVehicle(res.data))
       .catch(err => console.log(err));
 
@@ -92,10 +91,7 @@ function BookingPage() {
 
     try{
 
-      await axios.post(
-        "http://localhost:5000/api/bookings",
-        booking
-      );
+      await axios.post("https://imperial-wheels.onrender.com/api/bookings", booking);
 
       navigate("/confirmation",{state:booking});
 

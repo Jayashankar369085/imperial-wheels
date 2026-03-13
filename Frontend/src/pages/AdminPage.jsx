@@ -24,22 +24,26 @@ function AdminPage() {
   });
 
   useEffect(() => {
-
     fetchBookings();
     fetchVehicles();
-
   }, []);
 
   const fetchBookings = async () => {
 
-    const res = await axios.get("http://localhost:5000/api/bookings");
+    const res = await axios.get(
+      "https://imperial-wheels.onrender.com/api/bookings"
+    );
+
     setBookings(res.data);
 
   };
 
   const fetchVehicles = async () => {
 
-    const res = await axios.get("http://localhost:5000/api/vehicles");
+    const res = await axios.get(
+      "https://imperial-wheels.onrender.com/api/vehicles"
+    );
+
     setVehicles(res.data);
 
   };
@@ -47,7 +51,7 @@ function AdminPage() {
   const updateStatus = async (id, status) => {
 
     const res = await axios.put(
-      `http://localhost:5000/api/bookings/${id}`,
+      `https://imperial-wheels.onrender.com/api/bookings/${id}`,
       { status }
     );
 
@@ -125,7 +129,7 @@ function AdminPage() {
       if (editingVehicleId) {
 
         await axios.put(
-          `http://localhost:5000/api/vehicles/${editingVehicleId}`,
+          `https://imperial-wheels.onrender.com/api/vehicles/${editingVehicleId}`,
           vehicleData
         );
 
@@ -134,7 +138,7 @@ function AdminPage() {
       } else {
 
         await axios.post(
-          "http://localhost:5000/api/vehicles",
+          "https://imperial-wheels.onrender.com/api/vehicles",
           vehicleData
         );
 
@@ -173,7 +177,7 @@ function AdminPage() {
   const deleteVehicle = async (id) => {
 
     await axios.delete(
-      `http://localhost:5000/api/vehicles/${id}`
+      `https://imperial-wheels.onrender.com/api/vehicles/${id}`
     );
 
     fetchVehicles();
@@ -235,18 +239,18 @@ function AdminPage() {
               </td>
 
               <td
-  style={{
-    fontWeight:"bold",
-    color:
-      b.status === "approved"
-        ? "#28a745"
-        : b.status === "rejected"
-        ? "#dc3545"
-        : "#ffc107"
-  }}
->
-  {b.status}
-</td>
+                style={{
+                  fontWeight:"bold",
+                  color:
+                    b.status === "approved"
+                      ? "#28a745"
+                      : b.status === "rejected"
+                      ? "#dc3545"
+                      : "#ffc107"
+                }}
+              >
+                {b.status}
+              </td>
 
               <td>
 
@@ -254,29 +258,29 @@ function AdminPage() {
 
                   <>
                     <button
-  onClick={() => updateStatus(b._id,"approved")}
-  style={{
-    background:"green",
-    border:"none",
-    padding:"5px 10px",
-    marginRight:"10px",
-    color:"white"
-  }}
->
-  Approve
-</button>
+                      onClick={() => updateStatus(b._id,"approved")}
+                      style={{
+                        background:"green",
+                        border:"none",
+                        padding:"5px 10px",
+                        marginRight:"10px",
+                        color:"white"
+                      }}
+                    >
+                      Approve
+                    </button>
 
                     <button
-  onClick={() => updateStatus(b._id,"rejected")}
-  style={{
-    background:"red",
-    border:"none",
-    padding:"5px 10px",
-    color:"white"
-  }}
->
-  Reject
-</button>
+                      onClick={() => updateStatus(b._id,"rejected")}
+                      style={{
+                        background:"red",
+                        border:"none",
+                        padding:"5px 10px",
+                        color:"white"
+                      }}
+                    >
+                      Reject
+                    </button>
                   </>
 
                 )}
@@ -351,14 +355,12 @@ function AdminPage() {
         <textarea name="description" value={vehicleForm.description} onChange={handleVehicleChange} placeholder="Vehicle Description" className="form-control mb-2"/>
 
         <button className="btn btn-warning mt-2">
-
           {editingVehicleId ? "Update Vehicle" : "Add Vehicle"}
-
         </button>
 
       </form>
 
-      {/* VEHICLES */}
+      {/* VEHICLE LIST */}
 
       <h3 style={{marginTop:"60px"}}>
         Manage Vehicles
@@ -421,4 +423,3 @@ function AdminPage() {
 }
 
 export default AdminPage;
-

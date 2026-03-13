@@ -27,10 +27,7 @@ function Register() {
 
     try {
 
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/register",
-        form
-      );
+      axios.post("https://imperial-wheels.onrender.com/api/auth/register", form)
 
       alert("Registration Successful");
 

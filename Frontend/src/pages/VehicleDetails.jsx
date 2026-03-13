@@ -10,8 +10,7 @@ function VehicleDetails() {
   const [vehicle, setVehicle] = useState(null);
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:5000/api/vehicles/${id}`)
+   axios.get(`https://imperial-wheels.onrender.com/api/vehicles/${id}`)
       .then((res) => setVehicle(res.data))
       .catch((err) => console.log(err));
   }, [id]);
