@@ -4,7 +4,7 @@ const { getBookings } = require("../controllers/bookingController");
 const { createBooking } = require("../controllers/bookingController");
 const { updateBookingStatus } = require("../controllers/bookingController");
 
-router.put("/:id", updateBookingStatus);
 router.post("/", createBooking);
 router.get("/", getBookings);
+router.put("/:id", updateBookingStatus);
 module.exports = router;

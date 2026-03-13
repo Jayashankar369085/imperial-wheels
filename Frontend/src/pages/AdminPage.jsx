@@ -23,55 +23,49 @@ function AdminPage() {
     description: ""
   });
 
+  const API = "https://imperial-wheels.onrender.com/api";
+
   useEffect(() => {
     fetchBookings();
     fetchVehicles();
   }, []);
 
   const fetchBookings = async () => {
-
-    const res = await axios.get(
-      "https://imperial-wheels.onrender.com/api/bookings"
-    );
-
-    setBookings(res.data);
-
+    try {
+      const res = await axios.get(`${API}/bookings`);
+      setBookings(res.data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const fetchVehicles = async () => {
-
-    const res = await axios.get(
-      "https://imperial-wheels.onrender.com/api/vehicles"
-    );
-
-    setVehicles(res.data);
-
+    try {
+      const res = await axios.get(`${API}/vehicles`);
+      setVehicles(res.data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const updateStatus = async (id, status) => {
+    try {
 
-    const res = await axios.put(
-      `https://imperial-wheels.onrender.com/api/bookings/${id}`,
-      { status }
-    );
+      await axios.put(`${API}/bookings/${id}`, { status });
 
-    const updated = res.data;
+      // refresh booking list instantly
+      fetchBookings();
 
-    setBookings(prev =>
-      prev.map(b =>
-        b._id === id ? updated : b
-      )
-    );
-
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleVehicleChange = (e) => {
-
     setVehicleForm({
       ...vehicleForm,
       [e.target.name]: e.target.value
     });
-
   };
 
   const editVehicle = (vehicle) => {
@@ -93,7 +87,6 @@ function AdminPage() {
     });
 
     setEditingVehicleId(vehicle._id);
-
   };
 
   const saveVehicle = async (e) => {
@@ -101,27 +94,21 @@ function AdminPage() {
     e.preventDefault();
 
     const vehicleData = {
-
       name: vehicleForm.name,
       brand: vehicleForm.brand,
       type: vehicleForm.type,
       category: vehicleForm.category,
       fuelType: vehicleForm.fuelType,
       transmission: vehicleForm.transmission,
-
       seats: Number(vehicleForm.seats),
       pricePerDay: Number(vehicleForm.pricePerDay),
-
       image: vehicleForm.image,
-
       images: [
         vehicleForm.image1,
         vehicleForm.image2,
         vehicleForm.image3
       ].filter(Boolean),
-
       description: vehicleForm.description
-
     };
 
     try {
@@ -129,7 +116,7 @@ function AdminPage() {
       if (editingVehicleId) {
 
         await axios.put(
-          `https://imperial-wheels.onrender.com/api/vehicles/${editingVehicleId}`,
+          `${API}/vehicles/${editingVehicleId}`,
           vehicleData
         );
 
@@ -138,7 +125,7 @@ function AdminPage() {
       } else {
 
         await axios.post(
-          "https://imperial-wheels.onrender.com/api/vehicles",
+          `${API}/vehicles`,
           vehicleData
         );
 
@@ -167,48 +154,40 @@ function AdminPage() {
       fetchVehicles();
 
     } catch (error) {
-
       console.log(error);
-
     }
-
   };
 
   const deleteVehicle = async (id) => {
 
-    await axios.delete(
-      `https://imperial-wheels.onrender.com/api/vehicles/${id}`
-    );
+    try {
 
-    fetchVehicles();
+      await axios.delete(`${API}/vehicles/${id}`);
+      fetchVehicles();
 
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
 
-    <div
-      style={{
-        padding: "80px",
-        background: "#0f0f0f",
-        minHeight: "100vh",
-        color: "white"
-      }}
-    >
+    <div style={{
+      padding:"80px",
+      background:"#0f0f0f",
+      minHeight:"100vh",
+      color:"white"
+    }}>
 
-      <h1 style={{color:"#d4af37"}}>
-        Admin Dashboard
-      </h1>
+      <h1 style={{color:"#d4af37"}}>Admin Dashboard</h1>
 
       {/* BOOKINGS */}
 
-      <h3 style={{marginTop:"40px"}}>
-        Booking Requests
-      </h3>
+      <h3 style={{marginTop:"40px"}}>Booking Requests</h3>
 
       <table style={{width:"100%",marginTop:"20px"}}>
 
         <thead>
-
           <tr style={{background:"#111",color:"#d4af37"}}>
             <th>Name</th>
             <th>Email</th>
@@ -219,7 +198,6 @@ function AdminPage() {
             <th>Status</th>
             <th>Action</th>
           </tr>
-
         </thead>
 
         <tbody>
@@ -238,17 +216,15 @@ function AdminPage() {
                 ₹{b.totalPrice}
               </td>
 
-              <td
-                style={{
-                  fontWeight:"bold",
-                  color:
-                    b.status === "approved"
-                      ? "#28a745"
-                      : b.status === "rejected"
-                      ? "#dc3545"
-                      : "#ffc107"
-                }}
-              >
+              <td style={{
+                fontWeight:"bold",
+                color:
+                  b.status === "approved"
+                    ? "#28a745"
+                    : b.status === "rejected"
+                    ? "#dc3545"
+                    : "#ffc107"
+              }}>
                 {b.status}
               </td>
 
@@ -362,27 +338,20 @@ function AdminPage() {
 
       {/* VEHICLE LIST */}
 
-      <h3 style={{marginTop:"60px"}}>
-        Manage Vehicles
-      </h3>
+      <h3 style={{marginTop:"60px"}}>Manage Vehicles</h3>
 
       {vehicles.map(v => (
 
-        <div
-          key={v._id}
-          style={{
-            background:"#111",
-            padding:"15px",
-            marginBottom:"10px",
-            borderRadius:"6px",
-            display:"flex",
-            justifyContent:"space-between"
-          }}
-        >
+        <div key={v._id} style={{
+          background:"#111",
+          padding:"15px",
+          marginBottom:"10px",
+          borderRadius:"6px",
+          display:"flex",
+          justifyContent:"space-between"
+        }}>
 
-          <span>
-            {v.name} — ₹{v.pricePerDay}
-          </span>
+          <span>{v.name} — ₹{v.pricePerDay}</span>
 
           <div>
 
