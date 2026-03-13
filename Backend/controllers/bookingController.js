@@ -5,11 +5,14 @@ const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
+  port: 587, // IMPORTANT: use 587 for Render compatibility
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
+  },
+  tls: {
+    rejectUnauthorized: false
   }
 });
 
@@ -29,7 +32,9 @@ exports.createBooking = async (req, res) => {
 
     console.error("BOOKING ERROR:", error);
 
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message
+    });
 
   }
 
@@ -46,9 +51,11 @@ exports.updateBookingStatus = async (req, res) => {
     const booking = await Booking.findById(req.params.id);
 
     if (!booking) {
+
       return res.status(404).json({
         message: "Booking not found"
       });
+
     }
 
     booking.status = req.body.status;
@@ -69,7 +76,8 @@ exports.updateBookingStatus = async (req, res) => {
 
         <p>Hello <b>${booking.name}</b>,</p>
 
-        <p>Your booking request has been <b style="color:green">APPROVED</b>.</p>
+        <p>Your booking request has been 
+        <b style="color:green;">APPROVED</b>.</p>
 
         <p><b>Vehicle:</b> ${booking.vehicleName}</p>
         <p><b>Start Date:</b> ${booking.startDate.toISOString().substring(0,10)}</p>
@@ -120,7 +128,7 @@ exports.updateBookingStatus = async (req, res) => {
 
       });
 
-      console.log("Email sent to:", booking.email);
+      console.log("Email sent successfully to:", booking.email);
 
     } catch (mailError) {
 
