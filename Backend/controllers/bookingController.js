@@ -1,20 +1,8 @@
 const Booking = require("../models/booking");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
-/* ================= EMAIL TRANSPORTER ================= */
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587, // IMPORTANT: use 587 for Render compatibility
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  },
-  tls: {
-    rejectUnauthorized: false
-  }
-});
 
 /* ================= CREATE BOOKING ================= */
 
@@ -40,6 +28,7 @@ exports.createBooking = async (req, res) => {
 
 };
 
+
 /* ================= UPDATE BOOKING STATUS ================= */
 
 exports.updateBookingStatus = async (req, res) => {
@@ -64,6 +53,7 @@ exports.updateBookingStatus = async (req, res) => {
 
     let subject = "";
     let htmlMessage = "";
+
 
     /* ===== APPROVED EMAIL ===== */
 
@@ -92,6 +82,7 @@ exports.updateBookingStatus = async (req, res) => {
 
     }
 
+
     /* ===== REJECTED EMAIL ===== */
 
     if (booking.status === "rejected") {
@@ -115,13 +106,14 @@ exports.updateBookingStatus = async (req, res) => {
 
     }
 
+
     /* ================= SEND EMAIL ================= */
 
     try {
 
-      await transporter.sendMail({
+      await resend.emails.send({
 
-        from: `"Imperial Wheels" <${process.env.EMAIL_USER}>`,
+        from: "Imperial Wheels <onboarding@resend.dev>",
         to: booking.email,
         subject: subject,
         html: htmlMessage
@@ -136,6 +128,7 @@ exports.updateBookingStatus = async (req, res) => {
 
     }
 
+
     res.json(booking);
 
   } catch (error) {
@@ -149,6 +142,7 @@ exports.updateBookingStatus = async (req, res) => {
   }
 
 };
+
 
 /* ================= GET BOOKINGS ================= */
 
